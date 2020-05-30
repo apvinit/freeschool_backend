@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 var categories map[int]*Category = make(map[int]*Category, 0)
@@ -12,6 +13,7 @@ var contents map[int]*Content = make(map[int]*Content, 0)
 
 func main() {
 	e := echo.New()
+	e.Use(middleware.CORS())
 	api := e.Group("api")
 
 	api.POST("/categories", createCategory)
