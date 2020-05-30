@@ -44,6 +44,6 @@ func main() {
 	api.PUT("/contents/:id", updateContent)
 	api.DELETE("/contents/:id", deleteContent)
 
-	e.Start(":1323")
+	e.Start(":8888")
 
 }
