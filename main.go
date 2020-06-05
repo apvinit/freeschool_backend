@@ -9,7 +9,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var topics map[int]*Topic = make(map[int]*Topic, 0)
 var lessons map[int]*Lesson = make(map[int]*Lesson, 0)
 var contents map[int]*Content = make(map[int]*Content, 0)
 
@@ -45,6 +44,21 @@ func initDB(db *sql.DB) {
 	}
 	statement.Exec()
 	statement.Close()
+
+	createModuleTable := `
+		CREATE TABLE IF NOT EXISTS module(
+			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+			"title" TEXT,
+			"description" TEXT,
+			"course_id" INTEGER
+		);
+	`
+	statement, err = db.Prepare(createModuleTable)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	statement.Exec()
+	statement.Close()
 }
 
 func main() {
@@ -74,11 +88,11 @@ func main() {
 	api.PUT("/courses/:id", updateCourse)
 	api.DELETE("/courses/:id", deleteCourse)
 
-	api.POST("/topics", createTopic)
-	api.GET("/topics", getTopics)
-	api.GET("/topics/:id", getTopicByID)
-	api.PUT("/topics/:id", updateTopic)
-	api.DELETE("/topics/:id", deleteTopic)
+	api.POST("/topics", createModule)
+	api.GET("/topics", getModules)
+	api.GET("/topics/:id", getModuleByID)
+	api.PUT("/topics/:id", updateModule)
+	api.DELETE("/topics/:id", deleteModule)
 
 	api.POST("/lessons", createLesson)
 	api.GET("/lessons", getLessons)
