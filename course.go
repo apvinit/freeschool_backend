@@ -9,7 +9,7 @@ import (
 
 // Course holds the info about a particular course
 type Course struct {
-	ID          int    `json:"id"`
+	ID          int    `json:"id,omitempty"`
 	Title       string `json:"title"`
 	Description string `json:"description,omitempty"`
 	CategoryID  int    `json:"categoryID,omitempty"`
@@ -22,23 +22,48 @@ func createCourse(c echo.Context) error {
 	if err := c.Bind(cou); err != nil {
 		return err
 	}
-	courses[cou.ID] = cou
+
+	insertCourseSQL := "INSERT INTO course(title, category_id) VALUES(?,?)"
+
+	stmt, err := db.Prepare(insertCourseSQL)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(cou.Title, cou.CategoryID)
+	if err != nil {
+		return err
+	}
+
 	return c.JSON(http.StatusCreated, cou)
 }
 
 func getCourses(c echo.Context) error {
 	var cou []Course = make([]Course, 0)
 
-	for _, ct := range courses {
-		cou = append(cou, *ct)
+	row, err := db.Query("SELECT id, title, category_id FROM course")
+	if err != nil {
+		return err
 	}
+	defer row.Close()
+
+	for row.Next() {
+		co := Course{}
+		row.Scan(&co.ID, &co.Title, &co.CategoryID)
+		cou = append(cou, co)
+	}
+
 	return c.JSON(http.StatusOK, cou)
 }
 
 func getCourseByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	return c.JSON(http.StatusOK, courses[id])
+	row := db.QueryRow("SELECT id, title, category_id FROM course WHERE id=?", id)
+	co := Course{}
+	row.Scan(&co.ID, &co.Title, &co.CategoryID)
+
+	return c.JSON(http.StatusOK, co)
 }
 
 func updateCourse(c echo.Context) error {
@@ -50,15 +75,27 @@ func updateCourse(c echo.Context) error {
 		return err
 	}
 
-	courses[id] = cou
+	stmt, err := db.Prepare("UPDATE course SET title=? WHERE id=?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
 
-	return c.JSON(http.StatusOK, cou)
+	_, err = stmt.Exec(cou.Title, id)
+
+	return c.JSON(http.StatusOK, cou.Title)
 }
 
 func deleteCourse(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	delete(courses, id)
+	stmt, err := db.Prepare("DELETE FROM course where id=?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	stmt.Exec(id)
 
 	return c.NoContent(http.StatusOK)
 }

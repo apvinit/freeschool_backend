@@ -9,7 +9,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var courses map[int]*Course = make(map[int]*Course, 0)
 var topics map[int]*Topic = make(map[int]*Topic, 0)
 var lessons map[int]*Lesson = make(map[int]*Lesson, 0)
 var contents map[int]*Content = make(map[int]*Content, 0)
@@ -31,6 +30,21 @@ func initDB(db *sql.DB) {
 	}
 	statement.Exec()
 	statement.Close()
+
+	createCourseTable := `
+		CREATE TABLE IF NOT EXISTS course(
+			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+			"title" TEXT,
+			"description" TEXT,
+			"category_id" INTEGER
+		);	
+	`
+	statement, err = db.Prepare(createCourseTable)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	statement.Exec()
+	statement.Close()
 }
 
 func main() {
@@ -44,6 +58,7 @@ func main() {
 	initDB(db)
 
 	e := echo.New()
+	e.Use(middleware.Logger())
 	e.Use(middleware.CORS())
 	api := e.Group("api")
 
