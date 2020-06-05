@@ -1,17 +1,48 @@
 package main
 
 import (
+	"database/sql"
+	"log"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-var categories map[int]*Category = make(map[int]*Category, 0)
 var courses map[int]*Course = make(map[int]*Course, 0)
 var topics map[int]*Topic = make(map[int]*Topic, 0)
 var lessons map[int]*Lesson = make(map[int]*Lesson, 0)
 var contents map[int]*Content = make(map[int]*Content, 0)
 
+var db *sql.DB
+
+func initDB(db *sql.DB) {
+	createCategoryTable := `
+		CREATE TABLE IF NOT EXISTS category (
+			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+			"title" TEXT,
+			"description" TEXT
+		);
+	`
+
+	statement, err := db.Prepare(createCategoryTable)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	statement.Exec()
+	statement.Close()
+}
+
 func main() {
+
+	db, _ = sql.Open("sqlite3", "./backend.db")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	defer db.Close()
+
+	initDB(db)
+
 	e := echo.New()
 	e.Use(middleware.CORS())
 	api := e.Group("api")

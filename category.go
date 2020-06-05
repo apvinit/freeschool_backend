@@ -9,8 +9,8 @@ import (
 
 // Category contains the info about the category of the courses
 type Category struct {
-	ID      int    `json:"id"`
-	Title   string `json:"title"`
+	ID      int    `json:"id,omitempty"`
+	Title   string `json:"title,omitempty"`
 	IconURL string `json:"iconURL,omitempty"`
 }
 
@@ -20,15 +20,38 @@ func createCategory(c echo.Context) error {
 	if err := c.Bind(cat); err != nil {
 		return err
 	}
-	categories[cat.ID] = cat
-	return c.JSON(http.StatusCreated, cat)
+
+	insertCategorySQL := "INSERT INTO category(title) VALUES (?)"
+
+	stmt, err := db.Prepare(insertCategorySQL)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(cat.Title)
+	if err != nil {
+		return err
+	}
+	return c.String(http.StatusCreated, "Created")
 }
 
 func getCategories(c echo.Context) error {
+
+	row, err := db.Query("SELECT id, title FROM category")
+	if err != nil {
+		return err
+	}
+	defer row.Close()
+
 	var cat []Category = make([]Category, 0)
 
-	for _, ct := range categories {
-		cat = append(cat, *ct)
+	for row.Next() {
+		ct := Category{}
+		err = row.Scan(&ct.ID, &ct.Title)
+		if err != nil {
+			return err
+		}
+		cat = append(cat, ct)
 	}
 	return c.JSON(http.StatusOK, cat)
 }
@@ -36,7 +59,13 @@ func getCategories(c echo.Context) error {
 func getCategoryByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	return c.JSON(http.StatusOK, categories[id])
+	row := db.QueryRow("SELECT id, title FROM category WHERE id=?", id)
+
+	cat := Category{}
+
+	row.Scan(&cat.ID, &cat.Title)
+
+	return c.JSON(http.StatusOK, cat)
 }
 
 func updateCategory(c echo.Context) error {
@@ -48,15 +77,30 @@ func updateCategory(c echo.Context) error {
 		return err
 	}
 
-	categories[id] = cat
+	stmt, err := db.Prepare("UPDATE category SET title=? WHERE id=?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
 
-	return c.JSON(http.StatusOK, cat)
+	_, err = stmt.Exec(cat.Title, id)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, cat.Title)
 }
 
 func deleteCategory(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	delete(categories, id)
+	stmt, err := db.Prepare("delete from category where id=?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	stmt.Exec(id)
 
 	return c.NoContent(http.StatusOK)
 }
