@@ -9,12 +9,12 @@ import (
 
 // Content is the core element. It has the actual course content.
 type Content struct {
-	ID          int    `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	LessonID    int    `json:"lessonID"`
-	ContentType string `json:"contentType"`
-	Data        string `json:"data"`
+	ID          int    `json:"id,omitempty"`
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+	LessonID    int    `json:"lessonID,omitempty"`
+	ContentType string `json:"contentType,omitemtpy"`
+	Data        string `json:"data,omitempty"`
 }
 
 func createContent(c echo.Context) error {
@@ -36,6 +36,28 @@ func createContent(c echo.Context) error {
 
 func getContents(c echo.Context) error {
 	var con []Content = make([]Content, 0)
+
+	cid := c.QueryParam("lesson_id")
+	if len(cid) != 0 {
+		lessonID, err := strconv.Atoi(cid)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "malformatted module_id"})
+		}
+
+		rows, err := db.Query("SELECT id, title, description, data FROM content WHERE lesson_id= ?", lessonID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			co := Content{}
+			rows.Scan(&co.ID, &co.Title, &co.Description, &co.Data)
+			con = append(con, co)
+		}
+
+		return c.JSON(http.StatusOK, con)
+	}
 
 	rows, err := db.Query("SELECT id, title, description, data, lesson_id FROM content")
 	if err != nil {
