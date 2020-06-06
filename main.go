@@ -9,9 +9,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var lessons map[int]*Lesson = make(map[int]*Lesson, 0)
-var contents map[int]*Content = make(map[int]*Content, 0)
-
 var db *sql.DB
 
 func initDB(db *sql.DB) {
@@ -59,6 +56,39 @@ func initDB(db *sql.DB) {
 	}
 	statement.Exec()
 	statement.Close()
+
+	createLessonTable := `
+		CREATE TABLE IF NOT EXISTS lesson(
+			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+			"title" TEXT,
+			"module_id" TEXT
+		);
+	`
+	statement, err = db.Prepare(createLessonTable)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	statement.Exec()
+	statement.Close()
+
+	createContentTable := `
+		CREATE TABLE IF NOT EXISTS content(
+			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+			"title" TEXT,
+			"description" TEXT,
+			"lesson_id" INTEGER,
+			"content_type" TEXT,
+			"data" TEXT
+		);
+	`
+
+	statement, err = db.Prepare(createContentTable)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	statement.Exec()
+	statement.Close()
+
 }
 
 func main() {
