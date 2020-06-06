@@ -41,15 +41,37 @@ func createCourse(c echo.Context) error {
 func getCourses(c echo.Context) error {
 	var cou []Course = make([]Course, 0)
 
-	row, err := db.Query("SELECT id, title, category_id FROM course")
+	cid := c.QueryParam("category_id")
+	if len(cid) != 0 {
+		categoryID, err := strconv.Atoi(c.QueryParam("category_id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "malformatted category_id"})
+		}
+
+		rows, err := db.Query("SELECT id, title FROM course WHERE category_id=?", categoryID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			co := Course{}
+			rows.Scan(&co.ID, &co.Title)
+			cou = append(cou, co)
+		}
+
+		return c.JSON(http.StatusOK, cou)
+	}
+
+	rows, err := db.Query("SELECT id, title, category_id FROM course")
 	if err != nil {
 		return err
 	}
-	defer row.Close()
+	defer rows.Close()
 
-	for row.Next() {
+	for rows.Next() {
 		co := Course{}
-		row.Scan(&co.ID, &co.Title, &co.CategoryID)
+		rows.Scan(&co.ID, &co.Title, &co.CategoryID)
 		cou = append(cou, co)
 	}
 
