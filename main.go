@@ -118,11 +118,11 @@ func main() {
 	api.PUT("/courses/:id", updateCourse)
 	api.DELETE("/courses/:id", deleteCourse)
 
-	api.POST("/topics", createModule)
-	api.GET("/topics", getModules)
-	api.GET("/topics/:id", getModuleByID)
-	api.PUT("/topics/:id", updateModule)
-	api.DELETE("/topics/:id", deleteModule)
+	api.POST("/modules", createModule)
+	api.GET("/modules", getModules)
+	api.GET("/modules/:id", getModuleByID)
+	api.PUT("/modules/:id", updateModule)
+	api.DELETE("/modules/:id", deleteModule)
 
 	api.POST("/lessons", createLesson)
 	api.GET("/lessons", getLessons)
