@@ -9,9 +9,9 @@ import (
 
 // Lesson contains info about the lesson of particular course
 type Lesson struct {
-	ID       int    `json:"id"`
-	Title    string `json:"title"`
-	ModuleID int    `json:"moduleID"`
+	ID       int    `json:"id,omitempty"`
+	Title    string `json:"title,omitempty"`
+	ModuleID int    `json:"moduleID,omitempty"`
 }
 
 func createLesson(c echo.Context) error {
@@ -28,11 +28,33 @@ func createLesson(c echo.Context) error {
 
 	_, err = stmt.Exec(l.Title, l.ModuleID)
 
-	return c.JSON(http.StatusCreated, l.Title)
+	return c.JSON(http.StatusCreated, l)
 }
 
 func getLessons(c echo.Context) error {
 	var ls []Lesson = make([]Lesson, 0)
+
+	lid := c.QueryParam("module_id")
+	if len(lid) != 0 {
+		moduleID, err := strconv.Atoi(lid)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "malformatted module_id"})
+		}
+
+		rows, err := db.Query("SELECT id, title FROM lesson WHERE module_id=?", moduleID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			l := Lesson{}
+			rows.Scan(&l.ID, &l.Title)
+			ls = append(ls, l)
+		}
+
+		return c.JSON(http.StatusOK, ls)
+	}
 
 	rows, err := db.Query("SELECT id, title, module_id FROM lesson")
 	if err != nil {
