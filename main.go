@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
+	"os"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -101,6 +102,15 @@ func main() {
 
 	initDB(db)
 
+	// setup upload directories
+	if _, err := os.Stat("media"); os.IsNotExist(err) {
+		os.Mkdir("media", 0755)
+	}
+
+	if _, err := os.Stat("transcoded"); os.IsNotExist(err) {
+		os.Mkdir("transcoded", 0755)
+	}
+
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.CORS())
@@ -135,6 +145,7 @@ func main() {
 	api.GET("/contents/:id", getContentByID)
 	api.PUT("/contents/:id", updateContent)
 	api.DELETE("/contents/:id", deleteContent)
+	api.POST("/contents/upload", uploadContent)
 
 	e.Start(":8888")
 
