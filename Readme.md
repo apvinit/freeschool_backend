@@ -49,7 +49,7 @@ Api backend for the Freeschool Application
 
 **DELETE** `/api/courses/:id` 
 
-### Topics
+### Modules
 
 ``` json
 // Topic JSON Object
@@ -57,19 +57,18 @@ Api backend for the Freeschool Application
   "id" : 1,
   "title": "Go Basics",
   "description" : "Basics of go programming",
-  "lessons" : [] // array of [Lesson] Objects
 }
 ```
 
-**POST** `/api/topics` 
+**POST** `/api/modules` 
 
-**GET** `/api/topics` 
+**GET** `/api/modules` 
 
-**GET** `/api/topics/:id` 
+**GET** `/api/modules/:id` 
 
-**PUT** `/api/topics/:id` 
+**PUT** `/api/modules/:id` 
 
-**DELETE** `/api/topics/:id` 
+**DELETE** `/api/modules/:id` 
 
 ### Lessons
 
