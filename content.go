@@ -1,8 +1,12 @@
 package main
 
 import (
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo"
 )
@@ -117,4 +121,39 @@ func deleteContent(c echo.Context) error {
 
 	return c.NoContent(http.StatusOK)
 
+}
+
+func uploadContent(c echo.Context) error {
+
+	// Source
+	file, err := c.FormFile("file")
+	if err != nil {
+		return err
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	fileName := strings.Replace(strings.ToLower(file.Filename), " ", "-", -1)
+
+	// Destination
+	dst, err := os.Create(filepath.Join("media", fileName))
+	if err != nil {
+		return err
+	}
+
+	// Copy
+	if _, err = io.Copy(dst, src); err != nil {
+		return err
+	}
+	dst.Close()
+
+	// Transcode the uploaded file to HLS
+	go transcodeToHLS(fileName)
+
+	return c.JSON(http.StatusOK,
+		map[string]string{"success": "file uploaded successfully"})
 }
