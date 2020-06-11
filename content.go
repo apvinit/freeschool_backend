@@ -1,13 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo"
 )
 
@@ -111,6 +112,13 @@ func updateContent(c echo.Context) error {
 func deleteContent(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
+	row := db.QueryRow("SELECT data FROM content WHERE id = ?", id)
+	var dataID string
+	row.Scan(&dataID)
+
+	deleteMedia(dataID)
+	deleteTransacodedMedia(dataID)
+
 	stmt, err := db.Prepare("DELETE FROM content where id=?")
 	if err != nil {
 		return err
@@ -137,7 +145,7 @@ func uploadContent(c echo.Context) error {
 	}
 	defer src.Close()
 
-	fileName := strings.Replace(strings.ToLower(file.Filename), " ", "-", -1)
+	fileName := uuid.New().String()
 
 	// Destination
 	dst, err := os.Create(filepath.Join("media", fileName))
@@ -155,5 +163,29 @@ func uploadContent(c echo.Context) error {
 	go transcodeToHLS(fileName)
 
 	return c.JSON(http.StatusOK,
-		map[string]string{"success": "file uploaded successfully"})
+		map[string]string{"id": fileName})
+}
+
+func streamFileSegment(c echo.Context) error {
+	name := c.Param("file")
+	segment := c.Param("segment")
+	return c.File("transcoded/" + name + "/" + segment)
+}
+
+func deleteMedia(fileName string) {
+	err := os.Remove(filepath.Join("media", fileName))
+	if err != nil {
+		fmt.Println("Error Deleting file")
+		return
+	}
+	fmt.Println("File Deleted Successfully")
+}
+
+func deleteTransacodedMedia(fileName string) {
+	err := os.RemoveAll(filepath.Join("transcoded", fileName))
+	if err != nil {
+		fmt.Println("Error Deleting directory", err.Error())
+		return
+	}
+	fmt.Println("File Deleted Successfully")
 }

@@ -146,6 +146,7 @@ func main() {
 	api.PUT("/contents/:id", updateContent)
 	api.DELETE("/contents/:id", deleteContent)
 	api.POST("/contents/upload", uploadContent)
+	api.GET("/contents/stream/:file/:segment", streamFileSegment)
 
 	e.Start(":8888")
 
