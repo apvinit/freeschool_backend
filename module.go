@@ -12,7 +12,8 @@ type Module struct {
 	ID          int    `json:"id,omitempty"`
 	Title       string `json:"title,omitempty"`
 	Description string `json:"description,omitempty"`
-	CourseID    int    `json:"courseID,omitempty"`
+	CourseID    int    `json:"course_id,omitempty"`
+	Draft       int    `json:"draft,omitempty"`
 }
 
 func createModule(c echo.Context) error {

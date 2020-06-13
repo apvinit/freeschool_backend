@@ -17,9 +17,10 @@ type Content struct {
 	ID          int    `json:"id,omitempty"`
 	Title       string `json:"title,omitempty"`
 	Description string `json:"description,omitempty"`
-	LessonID    int    `json:"lessonID,omitempty"`
-	ContentType string `json:"contentType,omitemtpy"`
+	LessonID    int    `json:"lesson_id,omitempty"`
+	ContentType string `json:"content_type,omitemtpy"`
 	Data        string `json:"data,omitempty"`
+	Draft       bool   `json:"draft,omitempty"`
 }
 
 func createContent(c echo.Context) error {

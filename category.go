@@ -9,9 +9,10 @@ import (
 
 // Category contains the info about the category of the courses
 type Category struct {
-	ID      int    `json:"id,omitempty"`
-	Title   string `json:"title,omitempty"`
-	IconURL string `json:"iconURL,omitempty"`
+	ID    int    `json:"id,omitempty"`
+	Title string `json:"title,omitempty"`
+	Cover string `json:"cover,omitempty"`
+	Lang  string `json:"lang",omitempty`
 }
 
 func createCategory(c echo.Context) error {

@@ -9,9 +9,11 @@ import (
 
 // Lesson contains info about the lesson of particular course
 type Lesson struct {
-	ID       int    `json:"id,omitempty"`
-	Title    string `json:"title,omitempty"`
-	ModuleID int    `json:"moduleID,omitempty"`
+	ID          int    `json:"id,omitempty"`
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+	ModuleID    int    `json:"module_id,omitempty"`
+	Draft       bool   `json:"draft,omitempty"`
 }
 
 func createLesson(c echo.Context) error {
