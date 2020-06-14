@@ -173,15 +173,6 @@ func streamFileSegment(c echo.Context) error {
 	return c.File("transcoded/" + name + "/" + segment)
 }
 
-func deleteMedia(fileName string) {
-	err := os.Remove(filepath.Join("media", fileName))
-	if err != nil {
-		fmt.Println("Error Deleting file")
-		return
-	}
-	fmt.Println("File Deleted Successfully")
-}
-
 func deleteTransacodedMedia(fileName string) {
 	err := os.RemoveAll(filepath.Join("transcoded", fileName))
 	if err != nil {

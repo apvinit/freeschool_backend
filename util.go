@@ -44,3 +44,11 @@ func uploadMedia(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]string{"id": fileName})
 }
+
+func deleteMedia(fileName string) error {
+	err := os.Remove(filepath.Join("media", fileName))
+	if err != nil {
+		return err
+	}
+	return nil
+}
