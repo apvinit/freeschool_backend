@@ -13,7 +13,7 @@ type Module struct {
 	Title       string `json:"title,omitempty"`
 	Description string `json:"description,omitempty"`
 	CourseID    int    `json:"course_id,omitempty"`
-	Draft       int    `json:"draft,omitempty"`
+	Draft       bool   `json:"draft,omitempty"`
 }
 
 func createModule(c echo.Context) error {
@@ -22,14 +22,14 @@ func createModule(c echo.Context) error {
 		return err
 	}
 
-	insertCourseSQL := "INSERT INTO module(title, course_id) VALUES(?,?)"
+	insertCourseSQL := "INSERT INTO module(title, description, course_id, draft) VALUES(?,?,?,?)"
 
 	stmt, err := db.Prepare(insertCourseSQL)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(m.Title, m.CourseID)
+	_, err = stmt.Exec(m.Title, m.Description, m.CourseID, m.Draft)
 
 	return c.JSON(http.StatusCreated, m)
 }
@@ -44,7 +44,7 @@ func getModules(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "malformatted course_id"})
 		}
 
-		rows, err := db.Query("SELECT id, title FROM module WHERE course_id=?", courseID)
+		rows, err := db.Query("SELECT id, title, description, course_id, draft FROM module WHERE course_id=?", courseID)
 		if err != nil {
 			return err
 		}
@@ -52,7 +52,7 @@ func getModules(c echo.Context) error {
 
 		for rows.Next() {
 			m := Module{}
-			rows.Scan(&m.ID, &m.Title)
+			rows.Scan(&m.ID, &m.Title, &m.Description, &m.CourseID, &m.Draft)
 			mod = append(mod, m)
 		}
 
@@ -60,7 +60,7 @@ func getModules(c echo.Context) error {
 
 	}
 
-	row, err := db.Query("SELECT id, title, course_id FROM module")
+	row, err := db.Query("SELECT id, title, description, course_id, draft FROM module")
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func getModules(c echo.Context) error {
 
 	for row.Next() {
 		m := Module{}
-		row.Scan(&m.ID, &m.Title, &m.CourseID)
+		row.Scan(&m.ID, &m.Title, &m.Description, &m.CourseID, &m.Draft)
 		mod = append(mod, m)
 	}
 	return c.JSON(http.StatusOK, mod)
@@ -77,9 +77,9 @@ func getModules(c echo.Context) error {
 func getModuleByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	row := db.QueryRow("SELECT id, title FROM module WHERE id=?", id)
+	row := db.QueryRow("SELECT id, title, description, course_id, draft FROM module WHERE id=?", id)
 	m := Module{}
-	row.Scan(&m.ID, &m.Title)
+	row.Scan(&m.ID, &m.Title, &m.Description, &m.CourseID, &m.Draft)
 
 	return c.JSON(http.StatusOK, m)
 }
@@ -93,15 +93,15 @@ func updateModule(c echo.Context) error {
 		return err
 	}
 
-	stmt, err := db.Prepare("UPDATE module SET title=? WHERE id=?")
+	stmt, err := db.Prepare("UPDATE module SET title=?, description=?, course_id=?, draft=? WHERE id=?")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(m.Title, id)
+	_, err = stmt.Exec(m.Title, m.Description, m.CourseID, m.Draft, id)
 
-	return c.JSON(http.StatusOK, m.Title)
+	return c.JSON(http.StatusOK, m)
 }
 
 func deleteModule(c echo.Context) error {
