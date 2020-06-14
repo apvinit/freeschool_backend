@@ -148,6 +148,8 @@ func main() {
 	api.POST("/contents/upload", uploadContent)
 	api.GET("/contents/stream/:file/:segment", streamFileSegment)
 
+	api.POST("/upload", uploadMedia)
+
 	e.Start(":8888")
 
 }
