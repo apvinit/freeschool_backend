@@ -22,13 +22,13 @@ func createLesson(c echo.Context) error {
 		return err
 	}
 
-	insertLessonSQL := "INSERT INTO lesson(title, module_id) VALUES(?,?)"
+	insertLessonSQL := "INSERT INTO lesson(title, description, module_id, draft) VALUES(?,?,?,?)"
 	stmt, err := db.Prepare(insertLessonSQL)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(l.Title, l.ModuleID)
+	_, err = stmt.Exec(l.Title, l.Description, l.ModuleID, l.Draft)
 
 	return c.JSON(http.StatusCreated, l)
 }
@@ -43,7 +43,7 @@ func getLessons(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "malformatted module_id"})
 		}
 
-		rows, err := db.Query("SELECT id, title FROM lesson WHERE module_id=?", moduleID)
+		rows, err := db.Query("SELECT id, title, description, module_id, draft FROM lesson WHERE module_id=?", moduleID)
 		if err != nil {
 			return err
 		}
@@ -51,14 +51,14 @@ func getLessons(c echo.Context) error {
 
 		for rows.Next() {
 			l := Lesson{}
-			rows.Scan(&l.ID, &l.Title)
+			rows.Scan(&l.ID, &l.Title, &l.Description, &l.ModuleID, &l.Draft)
 			ls = append(ls, l)
 		}
 
 		return c.JSON(http.StatusOK, ls)
 	}
 
-	rows, err := db.Query("SELECT id, title, module_id FROM lesson")
+	rows, err := db.Query("SELECT id, title, description, module_id, draft FROM lesson")
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func getLessons(c echo.Context) error {
 
 	for rows.Next() {
 		l := Lesson{}
-		rows.Scan(&l.ID, &l.Title, &l.ModuleID)
+		rows.Scan(&l.ID, &l.Title, &l.Description, &l.ModuleID, &l.Draft)
 		ls = append(ls, l)
 	}
 
@@ -76,9 +76,9 @@ func getLessons(c echo.Context) error {
 func getLessonByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	row := db.QueryRow("SELECT id, title, module_id FROM lesson WHERE id=?", id)
+	row := db.QueryRow("SELECT id, title, description, module_id, draft FROM lesson WHERE id=?", id)
 	l := Lesson{}
-	row.Scan(&l.ID, &l.Title, &l.ModuleID)
+	row.Scan(&l.ID, &l.Title, &l.Description, &l.ModuleID, &l.Draft)
 
 	return c.JSON(http.StatusOK, l)
 }
@@ -92,13 +92,13 @@ func updateLesson(c echo.Context) error {
 		return err
 	}
 
-	stmt, err := db.Prepare("UPDATE lesson SET title=? WHERE id=?")
+	stmt, err := db.Prepare("UPDATE lesson SET title=?, description=?, module_id=?, draft=? WHERE id=?")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(l.Title, id)
+	_, err = stmt.Exec(l.Title, l.Description, l.ModuleID, l.Draft, id)
 
 	return c.JSON(http.StatusOK, l)
 }
