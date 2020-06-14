@@ -33,12 +33,12 @@ func createCategory(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusCreated, map[string]string{"status": "created"})
+	return c.JSON(http.StatusCreated, map[string]interface{}{"status": "created", "category": cat})
 }
 
 func getCategories(c echo.Context) error {
 
-	row, err := db.Query("SELECT id, title FROM category")
+	row, err := db.Query("SELECT id, title, cover, lang FROM category")
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func getCategories(c echo.Context) error {
 
 	for row.Next() {
 		ct := Category{}
-		err = row.Scan(&ct.ID, &ct.Title)
+		err = row.Scan(&ct.ID, &ct.Title, &ct.Cover, &ct.Lang)
 		if err != nil {
 			return err
 		}
@@ -60,11 +60,11 @@ func getCategories(c echo.Context) error {
 func getCategoryByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	row := db.QueryRow("SELECT id, title FROM category WHERE id=?", id)
+	row := db.QueryRow("SELECT id, title, cover, lang FROM category WHERE id=?", id)
 
 	cat := Category{}
 
-	row.Scan(&cat.ID, &cat.Title)
+	row.Scan(&cat.ID, &cat.Title, &cat.Cover, &cat.Lang)
 
 	return c.JSON(http.StatusOK, cat)
 }
@@ -78,18 +78,18 @@ func updateCategory(c echo.Context) error {
 		return err
 	}
 
-	stmt, err := db.Prepare("UPDATE category SET title=? WHERE id=?")
+	stmt, err := db.Prepare("UPDATE category SET title=?, cover=?, lang=? WHERE id=?")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(cat.Title, id)
+	_, err = stmt.Exec(cat.Title, cat.Cover, cat.Lang, id)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, cat.Title)
+	return c.JSON(http.StatusOK, cat)
 }
 
 func deleteCategory(c echo.Context) error {
