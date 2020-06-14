@@ -12,7 +12,7 @@ type Category struct {
 	ID    int    `json:"id,omitempty"`
 	Title string `json:"title,omitempty"`
 	Cover string `json:"cover,omitempty"`
-	Lang  string `json:"lang",omitempty`
+	Lang  string `json:"lang,omitempty"`
 }
 
 func createCategory(c echo.Context) error {
@@ -22,18 +22,18 @@ func createCategory(c echo.Context) error {
 		return err
 	}
 
-	insertCategorySQL := "INSERT INTO category(title) VALUES (?)"
+	insertCategorySQL := "INSERT INTO category(title, cover, lang) VALUES (?,?,?)"
 
 	stmt, err := db.Prepare(insertCategorySQL)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(cat.Title)
+	_, err = stmt.Exec(cat.Title, cat.Cover, cat.Lang)
 	if err != nil {
 		return err
 	}
-	return c.String(http.StatusCreated, "Created")
+	return c.JSON(http.StatusCreated, map[string]string{"status": "created"})
 }
 
 func getCategories(c echo.Context) error {
