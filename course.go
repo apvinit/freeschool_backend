@@ -26,14 +26,18 @@ func createCourse(c echo.Context) error {
 		return err
 	}
 
-	insertCourseSQL := "INSERT INTO course(title, category_id) VALUES(?,?)"
+	insertCourseSQL :=
+		`INSERT INTO course
+			(title, description, category_id, cover, lang, created_by, draft) 
+			VALUES(?,?,?,?,?,?,?)
+	`
 
 	stmt, err := db.Prepare(insertCourseSQL)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(cou.Title, cou.CategoryID)
+	_, err = stmt.Exec(cou.Title, cou.Description, cou.CategoryID, cou.Cover, cou.Lang, cou.CreatedBy, cou.Draft)
 	if err != nil {
 		return err
 	}
@@ -51,7 +55,7 @@ func getCourses(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "malformatted category_id"})
 		}
 
-		rows, err := db.Query("SELECT id, title FROM course WHERE category_id=?", categoryID)
+		rows, err := db.Query("SELECT id, title,description, category_id, cover, lang, created_by, draft FROM course WHERE category_id=?", categoryID)
 		if err != nil {
 			return err
 		}
@@ -59,14 +63,14 @@ func getCourses(c echo.Context) error {
 
 		for rows.Next() {
 			co := Course{}
-			rows.Scan(&co.ID, &co.Title)
+			rows.Scan(&co.ID, &co.Title, &co.Description, &co.CategoryID, &co.Cover, &co.Lang, &co.CreatedBy, &co.Draft)
 			cou = append(cou, co)
 		}
 
 		return c.JSON(http.StatusOK, cou)
 	}
 
-	rows, err := db.Query("SELECT id, title, category_id FROM course")
+	rows, err := db.Query("SELECT id, title,description, category_id, cover, lang, created_by, draft FROM course")
 	if err != nil {
 		return err
 	}
@@ -74,7 +78,7 @@ func getCourses(c echo.Context) error {
 
 	for rows.Next() {
 		co := Course{}
-		rows.Scan(&co.ID, &co.Title, &co.CategoryID)
+		rows.Scan(&co.ID, &co.Title, &co.Description, &co.CategoryID, &co.Cover, &co.Lang, &co.CreatedBy, &co.Draft)
 		cou = append(cou, co)
 	}
 
@@ -84,9 +88,9 @@ func getCourses(c echo.Context) error {
 func getCourseByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	row := db.QueryRow("SELECT id, title, category_id FROM course WHERE id=?", id)
+	row := db.QueryRow("SELECT id, title,description, category_id, cover, lang, created_by, draft FROM course WHERE id=?", id)
 	co := Course{}
-	row.Scan(&co.ID, &co.Title, &co.CategoryID)
+	row.Scan(&co.ID, &co.Title, &co.Description, &co.CategoryID, &co.Cover, &co.Lang, &co.CreatedBy, &co.Draft)
 
 	return c.JSON(http.StatusOK, co)
 }
@@ -100,15 +104,15 @@ func updateCourse(c echo.Context) error {
 		return err
 	}
 
-	stmt, err := db.Prepare("UPDATE course SET title=? WHERE id=?")
+	stmt, err := db.Prepare("UPDATE course SET title=?,  description=?, category_id=?, cover=?, lang=?, created_by=?, draft=? WHERE id=?")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(cou.Title, id)
+	_, err = stmt.Exec(cou.Title, cou.Description, cou.CategoryID, cou.Cover, cou.Lang, cou.CreatedBy, cou.Draft, id)
 
-	return c.JSON(http.StatusOK, cou.Title)
+	return c.JSON(http.StatusOK, cou)
 }
 
 func deleteCourse(c echo.Context) error {
