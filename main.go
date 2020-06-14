@@ -34,7 +34,11 @@ func initDB(db *sql.DB) {
 			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
 			"title" TEXT,
 			"description" TEXT,
-			"category_id" INTEGER
+			"category_id" INTEGER,
+			"cover" TEXT NULL,
+			"lang" TEXT,
+			"created_by" TEXT NULL,
+			"draft" BOOLEAN
 		);	
 	`
 	statement, err = db.Prepare(createCourseTable)
@@ -49,7 +53,8 @@ func initDB(db *sql.DB) {
 			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
 			"title" TEXT,
 			"description" TEXT,
-			"course_id" INTEGER
+			"course_id" INTEGER,
+			"draft" BOOLEAN
 		);
 	`
 	statement, err = db.Prepare(createModuleTable)
@@ -63,7 +68,9 @@ func initDB(db *sql.DB) {
 		CREATE TABLE IF NOT EXISTS lesson(
 			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
 			"title" TEXT,
-			"module_id" TEXT
+			"description" TEXT,
+			"module_id" TEXT,
+			"draft" BOOLEAN
 		);
 	`
 	statement, err = db.Prepare(createLessonTable)
@@ -80,7 +87,8 @@ func initDB(db *sql.DB) {
 			"description" TEXT,
 			"lesson_id" INTEGER,
 			"content_type" TEXT,
-			"data" TEXT
+			"data" TEXT,
+			"draft" TEXT
 		);
 	`
 
