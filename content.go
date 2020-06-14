@@ -29,13 +29,13 @@ func createContent(c echo.Context) error {
 		return err
 	}
 
-	insertContentSQL := "INSERT INTO content(title, description, data, lesson_ID) VALUES(?,?,?,?)"
+	insertContentSQL := "INSERT INTO content(title, description, lesson_ID, content_type, data, draft) VALUES(?,?,?,?,?,?)"
 	stmt, err := db.Prepare(insertContentSQL)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(ct.Title, ct.Description, ct.Data, ct.LessonID)
+	_, err = stmt.Exec(ct.Title, ct.Description, ct.LessonID, ct.ContentType, ct.Data, ct.Draft)
 
 	return c.JSON(http.StatusCreated, ct)
 }
@@ -50,7 +50,7 @@ func getContents(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "malformatted module_id"})
 		}
 
-		rows, err := db.Query("SELECT id, title, description, data FROM content WHERE lesson_id= ?", lessonID)
+		rows, err := db.Query("SELECT id, title, description, lesson_id, content_type, data, draft FROM content WHERE lesson_id= ?", lessonID)
 		if err != nil {
 			return err
 		}
@@ -58,14 +58,14 @@ func getContents(c echo.Context) error {
 
 		for rows.Next() {
 			co := Content{}
-			rows.Scan(&co.ID, &co.Title, &co.Description, &co.Data)
+			rows.Scan(&co.ID, &co.Title, &co.Description, &co.LessonID, &co.ContentType, &co.Data, &co.Draft)
 			con = append(con, co)
 		}
 
 		return c.JSON(http.StatusOK, con)
 	}
 
-	rows, err := db.Query("SELECT id, title, description, data, lesson_id FROM content")
+	rows, err := db.Query("SELECT id, title, description, lesson_id, content_type, data, draft FROM content")
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func getContents(c echo.Context) error {
 
 	for rows.Next() {
 		co := Content{}
-		rows.Scan(&co.ID, &co.Title, &co.Description, &co.Data, &co.LessonID)
+		rows.Scan(&co.ID, &co.Title, &co.Description, &co.LessonID, &co.ContentType, &co.Data, &co.Draft)
 		con = append(con, co)
 	}
 
@@ -83,9 +83,9 @@ func getContents(c echo.Context) error {
 func getContentByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	row := db.QueryRow("SELECT id, title, description, data, lesson_id FROM content WHERE id = ?", id)
+	row := db.QueryRow("SELECT id, title, description, lesson_id, content_type, data, draft FROM content WHERE id = ?", id)
 	co := Content{}
-	row.Scan(&co.ID, &co.Title, &co.Description, &co.Data, &co.LessonID)
+	row.Scan(&co.ID, &co.Title, &co.Description, &co.LessonID, &co.ContentType, &co.Data, &co.Draft)
 
 	return c.JSON(http.StatusOK, co)
 }
@@ -99,13 +99,13 @@ func updateContent(c echo.Context) error {
 		return err
 	}
 
-	stmt, err := db.Prepare("UPDATE content SET title=? WHERE id=?")
+	stmt, err := db.Prepare("UPDATE content SET title=?, description=?, lesson_id=?, content_type=?, data=?, draft=? WHERE id=?")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(co.Title, id)
+	_, err = stmt.Exec(co.Title, co.Description, co.LessonID, co.ContentType, co.Data, co.Draft, id)
 
 	return c.JSON(http.StatusOK, co)
 }
