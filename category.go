@@ -33,7 +33,7 @@ func createCategory(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusCreated, map[string]interface{}{"status": "created", "category": cat})
+	return c.JSON(http.StatusCreated, cat)
 }
 
 func getCategories(c echo.Context) error {
