@@ -22,7 +22,7 @@ func createModule(c echo.Context) error {
 		return err
 	}
 
-	insertCourseSQL := "INSERT INTO module(title, description, course_id, draft) VALUES(?,?,?,?)"
+	insertCourseSQL := "INSERT INTO modules(title, description, course_id, draft) VALUES(?,?,?,?)"
 
 	stmt, err := db.Prepare(insertCourseSQL)
 	if err != nil {
@@ -44,7 +44,7 @@ func getModules(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "malformatted course_id"})
 		}
 
-		rows, err := db.Query("SELECT id, title, description, course_id, draft FROM module WHERE course_id=?", courseID)
+		rows, err := db.Query("SELECT id, title, description, course_id, draft FROM modules WHERE course_id=?", courseID)
 		if err != nil {
 			return err
 		}
@@ -60,7 +60,7 @@ func getModules(c echo.Context) error {
 
 	}
 
-	row, err := db.Query("SELECT id, title, description, course_id, draft FROM module")
+	row, err := db.Query("SELECT id, title, description, course_id, draft FROM modules")
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func getModules(c echo.Context) error {
 func getModuleByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	row := db.QueryRow("SELECT id, title, description, course_id, draft FROM module WHERE id=?", id)
+	row := db.QueryRow("SELECT id, title, description, course_id, draft FROM modules WHERE id=?", id)
 	m := Module{}
 	row.Scan(&m.ID, &m.Title, &m.Description, &m.CourseID, &m.Draft)
 
@@ -93,7 +93,7 @@ func updateModule(c echo.Context) error {
 		return err
 	}
 
-	stmt, err := db.Prepare("UPDATE module SET title=?, description=?, course_id=?, draft=? WHERE id=?")
+	stmt, err := db.Prepare("UPDATE modules SET title=?, description=?, course_id=?, draft=? WHERE id=?")
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func updateModule(c echo.Context) error {
 func deleteModule(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	stmt, err := db.Prepare("DELETE FROM module where id=?")
+	stmt, err := db.Prepare("DELETE FROM modules where id=?")
 	if err != nil {
 		return err
 	}

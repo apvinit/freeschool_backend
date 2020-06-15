@@ -27,7 +27,7 @@ func createCourse(c echo.Context) error {
 	}
 
 	insertCourseSQL :=
-		`INSERT INTO course
+		`INSERT INTO courses
 			(title, description, category_id, cover, lang, created_by, draft) 
 			VALUES(?,?,?,?,?,?,?)
 	`
@@ -55,7 +55,7 @@ func getCourses(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "malformatted category_id"})
 		}
 
-		rows, err := db.Query("SELECT id, title,description, category_id, cover, lang, created_by, draft FROM course WHERE category_id=?", categoryID)
+		rows, err := db.Query("SELECT id, title,description, category_id, cover, lang, created_by, draft FROM courses WHERE category_id=?", categoryID)
 		if err != nil {
 			return err
 		}
@@ -70,7 +70,7 @@ func getCourses(c echo.Context) error {
 		return c.JSON(http.StatusOK, cou)
 	}
 
-	rows, err := db.Query("SELECT id, title,description, category_id, cover, lang, created_by, draft FROM course")
+	rows, err := db.Query("SELECT id, title,description, category_id, cover, lang, created_by, draft FROM courses")
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func getCourses(c echo.Context) error {
 func getCourseByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	row := db.QueryRow("SELECT id, title,description, category_id, cover, lang, created_by, draft FROM course WHERE id=?", id)
+	row := db.QueryRow("SELECT id, title,description, category_id, cover, lang, created_by, draft FROM courses WHERE id=?", id)
 	co := Course{}
 	row.Scan(&co.ID, &co.Title, &co.Description, &co.CategoryID, &co.Cover, &co.Lang, &co.CreatedBy, &co.Draft)
 
@@ -104,7 +104,7 @@ func updateCourse(c echo.Context) error {
 		return err
 	}
 
-	stmt, err := db.Prepare("UPDATE course SET title=?,  description=?, category_id=?, cover=?, lang=?, created_by=?, draft=? WHERE id=?")
+	stmt, err := db.Prepare("UPDATE courses SET title=?,  description=?, category_id=?, cover=?, lang=?, created_by=?, draft=? WHERE id=?")
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func updateCourse(c echo.Context) error {
 func deleteCourse(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	stmt, err := db.Prepare("DELETE FROM course where id=?")
+	stmt, err := db.Prepare("DELETE FROM courses where id=?")
 	if err != nil {
 		return err
 	}

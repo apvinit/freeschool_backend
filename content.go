@@ -29,7 +29,7 @@ func createContent(c echo.Context) error {
 		return err
 	}
 
-	insertContentSQL := "INSERT INTO content(title, description, lesson_ID, content_type, data, draft) VALUES(?,?,?,?,?,?)"
+	insertContentSQL := "INSERT INTO contents(title, description, lesson_ID, content_type, data, draft) VALUES(?,?,?,?,?,?)"
 	stmt, err := db.Prepare(insertContentSQL)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func getContents(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "malformatted module_id"})
 		}
 
-		rows, err := db.Query("SELECT id, title, description, lesson_id, content_type, data, draft FROM content WHERE lesson_id= ?", lessonID)
+		rows, err := db.Query("SELECT id, title, description, lesson_id, content_type, data, draft FROM contents WHERE lesson_id= ?", lessonID)
 		if err != nil {
 			return err
 		}
@@ -65,7 +65,7 @@ func getContents(c echo.Context) error {
 		return c.JSON(http.StatusOK, con)
 	}
 
-	rows, err := db.Query("SELECT id, title, description, lesson_id, content_type, data, draft FROM content")
+	rows, err := db.Query("SELECT id, title, description, lesson_id, content_type, data, draft FROM contents")
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func getContents(c echo.Context) error {
 func getContentByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	row := db.QueryRow("SELECT id, title, description, lesson_id, content_type, data, draft FROM content WHERE id = ?", id)
+	row := db.QueryRow("SELECT id, title, description, lesson_id, content_type, data, draft FROM contents WHERE id = ?", id)
 	co := Content{}
 	row.Scan(&co.ID, &co.Title, &co.Description, &co.LessonID, &co.ContentType, &co.Data, &co.Draft)
 
@@ -99,7 +99,7 @@ func updateContent(c echo.Context) error {
 		return err
 	}
 
-	stmt, err := db.Prepare("UPDATE content SET title=?, description=?, lesson_id=?, content_type=?, data=?, draft=? WHERE id=?")
+	stmt, err := db.Prepare("UPDATE contents SET title=?, description=?, lesson_id=?, content_type=?, data=?, draft=? WHERE id=?")
 	if err != nil {
 		return err
 	}
@@ -113,14 +113,14 @@ func updateContent(c echo.Context) error {
 func deleteContent(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	row := db.QueryRow("SELECT data FROM content WHERE id = ?", id)
+	row := db.QueryRow("SELECT data FROM contents WHERE id = ?", id)
 	var dataID string
 	row.Scan(&dataID)
 
 	deleteMedia(dataID)
 	deleteTransacodedMedia(dataID)
 
-	stmt, err := db.Prepare("DELETE FROM content where id=?")
+	stmt, err := db.Prepare("DELETE FROM contents where id=?")
 	if err != nil {
 		return err
 	}

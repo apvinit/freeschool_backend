@@ -22,7 +22,7 @@ func createCategory(c echo.Context) error {
 		return err
 	}
 
-	insertCategorySQL := "INSERT INTO category(title, cover, lang) VALUES (?,?,?)"
+	insertCategorySQL := "INSERT INTO categories(title, cover, lang) VALUES (?,?,?)"
 
 	stmt, err := db.Prepare(insertCategorySQL)
 	if err != nil {
@@ -38,7 +38,7 @@ func createCategory(c echo.Context) error {
 
 func getCategories(c echo.Context) error {
 
-	row, err := db.Query("SELECT id, title, cover, lang FROM category")
+	row, err := db.Query("SELECT id, title, cover, lang FROM categories")
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func getCategories(c echo.Context) error {
 func getCategoryByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	row := db.QueryRow("SELECT id, title, cover, lang FROM category WHERE id=?", id)
+	row := db.QueryRow("SELECT id, title, cover, lang FROM categories WHERE id=?", id)
 
 	cat := Category{}
 
@@ -78,7 +78,7 @@ func updateCategory(c echo.Context) error {
 		return err
 	}
 
-	stmt, err := db.Prepare("UPDATE category SET title=?, cover=?, lang=? WHERE id=?")
+	stmt, err := db.Prepare("UPDATE categories SET title=?, cover=?, lang=? WHERE id=?")
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func updateCategory(c echo.Context) error {
 func deleteCategory(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	stmt, err := db.Prepare("delete from category where id=?")
+	stmt, err := db.Prepare("delete from categories where id=?")
 	if err != nil {
 		return err
 	}

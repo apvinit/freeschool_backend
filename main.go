@@ -14,7 +14,7 @@ var db *sql.DB
 
 func initDB(db *sql.DB) {
 	createCategoryTable := `
-		CREATE TABLE IF NOT EXISTS category (
+		CREATE TABLE IF NOT EXISTS categories (
 			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
 			"title" TEXT,
 			"cover" TEXT,
@@ -30,7 +30,7 @@ func initDB(db *sql.DB) {
 	statement.Close()
 
 	createCourseTable := `
-		CREATE TABLE IF NOT EXISTS course(
+		CREATE TABLE IF NOT EXISTS courses(
 			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
 			"title" TEXT,
 			"description" TEXT,
@@ -49,7 +49,7 @@ func initDB(db *sql.DB) {
 	statement.Close()
 
 	createModuleTable := `
-		CREATE TABLE IF NOT EXISTS module(
+		CREATE TABLE IF NOT EXISTS modules(
 			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
 			"title" TEXT,
 			"description" TEXT,
@@ -65,7 +65,7 @@ func initDB(db *sql.DB) {
 	statement.Close()
 
 	createLessonTable := `
-		CREATE TABLE IF NOT EXISTS lesson(
+		CREATE TABLE IF NOT EXISTS lessons(
 			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
 			"title" TEXT,
 			"description" TEXT,
@@ -81,7 +81,7 @@ func initDB(db *sql.DB) {
 	statement.Close()
 
 	createContentTable := `
-		CREATE TABLE IF NOT EXISTS content(
+		CREATE TABLE IF NOT EXISTS contents(
 			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
 			"title" TEXT,
 			"description" TEXT,

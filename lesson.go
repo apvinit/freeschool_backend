@@ -22,7 +22,7 @@ func createLesson(c echo.Context) error {
 		return err
 	}
 
-	insertLessonSQL := "INSERT INTO lesson(title, description, module_id, draft) VALUES(?,?,?,?)"
+	insertLessonSQL := "INSERT INTO lessons(title, description, module_id, draft) VALUES(?,?,?,?)"
 	stmt, err := db.Prepare(insertLessonSQL)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func getLessons(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "malformatted module_id"})
 		}
 
-		rows, err := db.Query("SELECT id, title, description, module_id, draft FROM lesson WHERE module_id=?", moduleID)
+		rows, err := db.Query("SELECT id, title, description, module_id, draft FROM lessons WHERE module_id=?", moduleID)
 		if err != nil {
 			return err
 		}
@@ -58,7 +58,7 @@ func getLessons(c echo.Context) error {
 		return c.JSON(http.StatusOK, ls)
 	}
 
-	rows, err := db.Query("SELECT id, title, description, module_id, draft FROM lesson")
+	rows, err := db.Query("SELECT id, title, description, module_id, draft FROM lessons")
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func getLessons(c echo.Context) error {
 func getLessonByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	row := db.QueryRow("SELECT id, title, description, module_id, draft FROM lesson WHERE id=?", id)
+	row := db.QueryRow("SELECT id, title, description, module_id, draft FROM lessons WHERE id=?", id)
 	l := Lesson{}
 	row.Scan(&l.ID, &l.Title, &l.Description, &l.ModuleID, &l.Draft)
 
@@ -92,7 +92,7 @@ func updateLesson(c echo.Context) error {
 		return err
 	}
 
-	stmt, err := db.Prepare("UPDATE lesson SET title=?, description=?, module_id=?, draft=? WHERE id=?")
+	stmt, err := db.Prepare("UPDATE lessons SET title=?, description=?, module_id=?, draft=? WHERE id=?")
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func updateLesson(c echo.Context) error {
 func deleteLesson(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	stmt, err := db.Prepare("DELETE FROM lesson where id=?")
+	stmt, err := db.Prepare("DELETE FROM lessons where id=?")
 	if err != nil {
 		return err
 	}
