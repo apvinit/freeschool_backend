@@ -114,6 +114,19 @@ func initDB(db *sql.DB) {
 	statement.Exec()
 	statement.Close()
 
+	createLanguagesTable := `
+		CREATE TABLE IF NOT EXISTS languages(
+			"lang" TEXT PRIMARY KEY,
+			"title" TEXT
+		);
+	`
+	statement, err = db.Prepare(createLanguagesTable)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	statement.Exec()
+	statement.Close()
+
 }
 
 func main() {
@@ -177,6 +190,11 @@ func main() {
 	api.POST("/register", register)
 	api.POST("/login", login)
 	api.GET("/profile", getProfile)
+
+	api.POST("/lang", createLanguage)
+	api.GET("/lang", getLanguages)
+	api.PUT("/lang/:id", updateLanguage)
+	api.DELETE("/lang/:id", deleteLanguage)
 
 	e.Start(":8888")
 
