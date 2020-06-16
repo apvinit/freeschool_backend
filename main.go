@@ -127,6 +127,20 @@ func initDB(db *sql.DB) {
 	statement.Exec()
 	statement.Close()
 
+	createTagsTable := `
+		CREATE TABLE IF NOT EXISTS tags(
+			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+			"title" TEXT
+		);
+	`
+
+	statement, err = db.Prepare(createTagsTable)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	statement.Exec()
+	statement.Close()
+
 }
 
 func main() {
@@ -195,6 +209,11 @@ func main() {
 	api.GET("/lang", getLanguages)
 	api.PUT("/lang/:id", updateLanguage)
 	api.DELETE("/lang/:id", deleteLanguage)
+
+	api.POST("/tags", createTag)
+	api.GET("/tags", getTags)
+	api.PUT("/tags/:id", updateTag)
+	api.DELETE("/tags/:id", deleteTag)
 
 	e.Start(":8888")
 
