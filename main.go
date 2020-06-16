@@ -99,6 +99,21 @@ func initDB(db *sql.DB) {
 	statement.Exec()
 	statement.Close()
 
+	createUsersTableSQL := `
+		CREATE TABLE IF NOT EXISTS users(
+			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+			"username" TEXT,
+			"password" TEXT,
+			"email" TEXT
+		);
+	`
+	statement, err = db.Prepare(createUsersTableSQL)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	statement.Exec()
+	statement.Close()
+
 }
 
 func main() {
@@ -158,6 +173,10 @@ func main() {
 	api.GET("/contents/stream/:file/:segment", streamFileSegment)
 
 	api.POST("/upload", uploadMedia)
+
+	api.POST("/register", register)
+	api.POST("/login", login)
+	api.GET("/profile", getProfile)
 
 	e.Start(":8888")
 
