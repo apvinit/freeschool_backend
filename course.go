@@ -36,6 +36,7 @@ func createCourse(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(cou.Title, cou.Description, cou.CategoryID, cou.Cover, cou.Lang, cou.CreatedBy, cou.Draft)
 	if err != nil {
