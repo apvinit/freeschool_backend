@@ -12,9 +12,9 @@ type Course struct {
 	ID          int    `json:"id,omitempty"`
 	Title       string `json:"title"`
 	Description string `json:"description,omitempty"`
-	CategoryID  int    `json:"category_id,omitempty"`
 	Cover       string `json:"cover,omitempty"`
 	Lang        string `json:"lang,omitempty"`
+	CategoryID  int    `json:"category_id,omitempty"`
 	CreatedBy   string `json:"created_by,omitempty"`
 	Draft       bool   `json:"draft,omitempty"`
 }
