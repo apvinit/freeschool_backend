@@ -52,3 +52,8 @@ func deleteMedia(fileName string) error {
 	}
 	return nil
 }
+
+func getMedia(c echo.Context) error {
+	fileName := c.Param("file")
+	return c.File("media/" + fileName)
+}

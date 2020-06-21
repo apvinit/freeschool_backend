@@ -200,6 +200,7 @@ func main() {
 	api.GET("/contents/stream/:file/:segment", streamFileSegment)
 
 	api.POST("/upload", uploadMedia)
+	api.GET("/uploads/:file", getMedia)
 
 	api.POST("/register", register)
 	api.POST("/login", login)
