@@ -145,22 +145,24 @@ func initDB(db *sql.DB) {
 
 func main() {
 
-	db, _ = sql.Open("sqlite3", "./backend.db")
-	// if err != nil {
-	// 	panic(err)
-	// }
+	// setup directories
+	if _, err := os.Stat("freeschool"); os.IsNotExist(err) {
+		os.Mkdir("freeschool", 0755)
+	}
+
+	// setup upload directories
+	if _, err := os.Stat("freeschool/media"); os.IsNotExist(err) {
+		os.Mkdir("freeschool/media", 0755)
+	}
+
+	if _, err := os.Stat("freeschool/transcoded"); os.IsNotExist(err) {
+		os.Mkdir("freeschool/transcoded", 0755)
+	}
+
+	db, _ = sql.Open("sqlite3", "freeschool/backend.db")
 	defer db.Close()
 
 	initDB(db)
-
-	// setup upload directories
-	if _, err := os.Stat("media"); os.IsNotExist(err) {
-		os.Mkdir("media", 0755)
-	}
-
-	if _, err := os.Stat("transcoded"); os.IsNotExist(err) {
-		os.Mkdir("transcoded", 0755)
-	}
 
 	e := echo.New()
 	e.Use(middleware.Logger())

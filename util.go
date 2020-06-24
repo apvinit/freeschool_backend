@@ -30,7 +30,7 @@ func uploadMedia(c echo.Context) error {
 	fileName := uuid.New().String() + "." + splitName[1]
 
 	// Destination
-	dst, err := os.Create(filepath.Join("media", fileName))
+	dst, err := os.Create(filepath.Join("freeschool", "media", fileName))
 
 	if err != nil {
 		return err
@@ -46,7 +46,7 @@ func uploadMedia(c echo.Context) error {
 }
 
 func deleteMedia(fileName string) error {
-	err := os.Remove(filepath.Join("media", fileName))
+	err := os.Remove(filepath.Join("freeschool", "media", fileName))
 	if err != nil {
 		return err
 	}
@@ -55,5 +55,5 @@ func deleteMedia(fileName string) error {
 
 func getMedia(c echo.Context) error {
 	fileName := c.Param("file")
-	return c.File("media/" + fileName)
+	return c.File("freeschool/media/" + fileName)
 }

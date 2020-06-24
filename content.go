@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo"
@@ -162,10 +163,11 @@ func uploadContent(c echo.Context) error {
 	}
 	defer src.Close()
 
-	fileName := uuid.New().String()
+	ext := strings.Split(file.Filename, ".")[1]
+	fileName := uuid.New().String() + "." + ext
 
 	// Destination
-	dst, err := os.Create(filepath.Join("media", fileName))
+	dst, err := os.Create(filepath.Join("freeschool", "media", fileName))
 	if err != nil {
 		return err
 	}
@@ -186,11 +188,11 @@ func uploadContent(c echo.Context) error {
 func streamFileSegment(c echo.Context) error {
 	name := c.Param("file")
 	segment := c.Param("segment")
-	return c.File("transcoded/" + name + "/" + segment)
+	return c.File("freeschool/transcoded/" + name + "/" + segment)
 }
 
 func deleteTransacodedMedia(fileName string) {
-	err := os.RemoveAll(filepath.Join("transcoded", fileName))
+	err := os.RemoveAll(filepath.Join("freeschool", "transcoded", fileName))
 	if err != nil {
 		fmt.Println("Error Deleting directory", err.Error())
 		return
