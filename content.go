@@ -80,6 +80,22 @@ func getContents(c echo.Context) error {
 	return c.JSON(http.StatusOK, con)
 }
 
+func getContentsForLesson(lessonID int) []Content {
+	var con []Content = make([]Content, 0)
+	rows, err := db.Query("SELECT id, title, description, lesson_id, content_type, data, draft FROM contents WHERE lesson_id= ?", lessonID)
+	if err != nil {
+		return []Content{}
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		co := Content{}
+		rows.Scan(&co.ID, &co.Title, &co.Description, &co.LessonID, &co.ContentType, &co.Data, &co.Draft)
+		con = append(con, co)
+	}
+	return con
+}
+
 func getContentByID(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
