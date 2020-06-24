@@ -9,11 +9,12 @@ import (
 
 // Module is a slice of lessons with some meta data
 type Module struct {
-	ID          int    `json:"id,omitempty"`
-	Title       string `json:"title,omitempty"`
-	Description string `json:"description,omitempty"`
-	CourseID    int    `json:"course_id,omitempty"`
-	Draft       bool   `json:"draft,omitempty"`
+	ID          int      `json:"id,omitempty"`
+	Title       string   `json:"title,omitempty"`
+	Description string   `json:"description,omitempty"`
+	CourseID    int      `json:"course_id,omitempty"`
+	Draft       bool     `json:"draft,omitempty"`
+	Lessons     []Lesson `json:"lessons,omitempty"`
 }
 
 func createModule(c echo.Context) error {
@@ -53,6 +54,7 @@ func getModules(c echo.Context) error {
 		for rows.Next() {
 			m := Module{}
 			rows.Scan(&m.ID, &m.Title, &m.Description, &m.CourseID, &m.Draft)
+			m.Lessons = getLessonsForModule(m.ID)
 			mod = append(mod, m)
 		}
 
@@ -69,6 +71,7 @@ func getModules(c echo.Context) error {
 	for row.Next() {
 		m := Module{}
 		row.Scan(&m.ID, &m.Title, &m.Description, &m.CourseID, &m.Draft)
+		m.Lessons = getLessonsForModule(m.ID)
 		mod = append(mod, m)
 	}
 	return c.JSON(http.StatusOK, mod)
@@ -80,6 +83,7 @@ func getModuleByID(c echo.Context) error {
 	row := db.QueryRow("SELECT id, title, description, course_id, draft FROM modules WHERE id=?", id)
 	m := Module{}
 	row.Scan(&m.ID, &m.Title, &m.Description, &m.CourseID, &m.Draft)
+	m.Lessons = getLessonsForModule(m.ID)
 
 	return c.JSON(http.StatusOK, m)
 }
