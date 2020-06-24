@@ -9,11 +9,12 @@ import (
 
 // Lesson contains info about the lesson of particular course
 type Lesson struct {
-	ID          int    `json:"id,omitempty"`
-	Title       string `json:"title,omitempty"`
-	Description string `json:"description,omitempty"`
-	ModuleID    int    `json:"module_id,omitempty"`
-	Draft       bool   `json:"draft,omitempty"`
+	ID          int       `json:"id,omitempty"`
+	Title       string    `json:"title,omitempty"`
+	Description string    `json:"description,omitempty"`
+	ModuleID    int       `json:"module_id,omitempty"`
+	Draft       bool      `json:"draft,omitempty"`
+	Contents    []Content `json:"contents,omitempty"`
 }
 
 func createLesson(c echo.Context) error {
@@ -52,6 +53,7 @@ func getLessons(c echo.Context) error {
 		for rows.Next() {
 			l := Lesson{}
 			rows.Scan(&l.ID, &l.Title, &l.Description, &l.ModuleID, &l.Draft)
+			l.Contents = getContentsForLesson(l.ID)
 			ls = append(ls, l)
 		}
 
@@ -67,10 +69,29 @@ func getLessons(c echo.Context) error {
 	for rows.Next() {
 		l := Lesson{}
 		rows.Scan(&l.ID, &l.Title, &l.Description, &l.ModuleID, &l.Draft)
+		l.Contents = getContentsForLesson(l.ID)
 		ls = append(ls, l)
 	}
 
 	return c.JSON(http.StatusOK, ls)
+}
+
+func getLessonsForModule(moduleID int) []Lesson {
+	var ls []Lesson = make([]Lesson, 0)
+
+	rows, err := db.Query("SELECT id, title, description, draft FROM lessons WHERE module_id=?", moduleID)
+	if err != nil {
+		return []Lesson{}
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		l := Lesson{}
+		rows.Scan(&l.ID, &l.Title, &l.Description, &l.Draft)
+		l.Contents = getContentsForLesson(l.ID)
+		ls = append(ls, l)
+	}
+	return ls
 }
 
 func getLessonByID(c echo.Context) error {
@@ -79,6 +100,7 @@ func getLessonByID(c echo.Context) error {
 	row := db.QueryRow("SELECT id, title, description, module_id, draft FROM lessons WHERE id=?", id)
 	l := Lesson{}
 	row.Scan(&l.ID, &l.Title, &l.Description, &l.ModuleID, &l.Draft)
+	l.Contents = getContentsForLesson(l.ID)
 
 	return c.JSON(http.StatusOK, l)
 }
