@@ -22,4 +22,5 @@ func transcodeToHLS(fileName string) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+	deleteMedia(fileName)
 }

@@ -134,7 +134,6 @@ func deleteContent(c echo.Context) error {
 	var dataID string
 	row.Scan(&dataID)
 
-	deleteMedia(dataID)
 	deleteTransacodedMedia(dataID)
 
 	stmt, err := db.Prepare("DELETE FROM contents where id=?")
